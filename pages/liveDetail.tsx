@@ -38,7 +38,7 @@ export default function Page({
 }
 
 export const getServerSideProps = (async () => {
-  const result = await client.search.channels("이글콥");
+  const result = await client.search.channels("서새봄냥 SEBOM");
 
   const channel = result.channels[0];
 

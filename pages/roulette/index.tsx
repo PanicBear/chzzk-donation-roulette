@@ -27,38 +27,7 @@ export default function Page({
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const intervalId = useRef<NodeJS.Timeout | null>();
   const instance = useRef<ChzzkChat | null>(null);
-  const [queue, setQueue] = useState<Queue[]>([
-    {
-      id: "test1",
-      nickname: "test",
-      message: "msg",
-      chance: 1,
-    },
-    {
-      id: "test2",
-      nickname: "test",
-      message: "msg",
-      chance: 1,
-    },
-    {
-      id: "test3",
-      nickname: "test",
-      message: "msg",
-      chance: 1,
-    },
-    {
-      id: "test4",
-      nickname: "test",
-      message: "msg",
-      chance: 1,
-    },
-    {
-      id: "test1",
-      nickname: "test",
-      message: "msg",
-      chance: 1,
-    },
-  ]);
+  const [queue, setQueue] = useState<Queue[]>([]);
   const [percent, setPercent] = useState<number>(ROLL_PERCENTAGE);
 
   const handleConnect = useCallback(() => {
@@ -108,15 +77,15 @@ export default function Page({
         const message = chat.hidden ? "[블라인드 처리 됨]" : chat.message;
         // console.log(`${chat.profile.nickname}: ${message}`);
 
-        const chance = getDummyCount(message);
+        // const chance = getDummyCount(message);
 
-        chance &&
-          setQueue((prev) => {
-            return [
-              ...prev,
-              { id: uuid(), nickname: chat.profile.nickname, message, chance },
-            ];
-          });
+        // chance &&
+        //   setQueue((prev) => {
+        //     return [
+        //       ...prev,
+        //       { id: uuid(), nickname: chat.profile.nickname, message, chance },
+        //     ];
+        //   });
 
         // console.log(message);
         // console.log(queue);

@@ -1,7 +1,15 @@
 import Link from "next/link";
+import { useRouter } from "next/router";
+import { memo } from "react";
 import { twMerge } from "tailwind-merge";
 
-export default function CNavBar() {
+function CNavBar() {
+  const router = useRouter();
+
+  if (router.pathname.includes("overlay")) {
+    return <></>;
+  }
+
   return (
     <nav
       className={twMerge(
@@ -21,6 +29,14 @@ export default function CNavBar() {
       <Link href="/chat" passHref>
         /chat
       </Link>
+      <Link href="/roulette" passHref>
+        /roulette
+      </Link>
+      <Link href="/roulette/overlay" passHref>
+        /roulette/overlay
+      </Link>
     </nav>
   );
 }
+
+export default memo(CNavBar);

@@ -5,6 +5,12 @@ import type { AppProps } from "next/app";
 import { SWRConfig } from "swr";
 import { twMerge } from "tailwind-merge";
 
+import "../styles/donation.css";
+
+import { Nanum_Gothic } from "next/font/google";
+
+const nanumGothic = Nanum_Gothic({ weight: "700", subsets: ["latin"] });
+
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <SWRConfig
@@ -15,7 +21,7 @@ export default function App({ Component, pageProps }: AppProps) {
         errorRetryInterval: 2500,
       }}
     >
-      <main className={twMerge("w-screen h-screen")}>
+      <main className={twMerge("w-screen h-screen", nanumGothic.className)}>
         <CNavBar />
         <Component {...pageProps} />
       </main>

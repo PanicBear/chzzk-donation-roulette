@@ -7,6 +7,13 @@ const nextConfig = {
       "nng-phinf.pstatic.net", // 이모티콘
     ],
   },
+  env: {
+    CHANNEL_ID: process.envCHANNEL_ID,
+    NID_AUTH: process.envNID_AUTH,
+    NID_SESSION: process.envNID_SESSION,
+    CHZZK_BASE_URL: process.envCHZZK_BASE_URL,
+    GAME_BASE_URL: process.envGAME_BASE_URL,
+  },
 };
 
 export default nextConfig;

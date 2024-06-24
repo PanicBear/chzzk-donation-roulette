@@ -7,3 +7,7 @@ export enum ChatCmd {
   RECENT_CHAT = 15101,
   CHAT = 93101,
 }
+
+export const ROLL_PERCENTAGE = 0.01;
+
+export const EMOJI_REGEX = /{:([a-zA-Z0-9_]+):}/g;

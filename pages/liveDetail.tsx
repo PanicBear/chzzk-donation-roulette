@@ -1,4 +1,3 @@
-import CNavBar from "@/components/navbar";
 import { client } from "@/libs";
 import { LiveDetail } from "chzzk";
 import { GetServerSideProps, InferGetServerSidePropsType } from "next";

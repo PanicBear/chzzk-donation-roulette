@@ -1,63 +1,7 @@
-import useChatList, { nicknameColors } from "@/hooks/useChatList";
-import { Chat } from "@/types";
+import Chatrow from "@/components/chatrow";
+import useChatList from "@/hooks/useChatList";
 import { GetServerSideProps, InferGetServerSidePropsType } from "next";
-import Image from "next/image";
-import { Fragment, memo, useEffect } from "react";
 import { twMerge } from "tailwind-merge";
-
-const emojiRegex = /{:([a-zA-Z0-9_]+):}/g;
-
-const ChatRow = memo((props: Chat) => {
-  const { nickname, badges, color, emojis, message } = props;
-  const match = message.match(emojiRegex);
-
-  return (
-    <div
-      className={twMerge("flex justify-start items-center gap-2")}
-      data-from={nickname}
-    >
-      <span
-        className={twMerge("flex justify-start items-center")}
-        style={{
-          color: typeof color == "number" ? nicknameColors[color] : color,
-        }}
-      >
-        {badges.map((src, i) => (
-          <Image
-            key={i}
-            width={18}
-            height={18}
-            className={twMerge("inline", "mr-1")}
-            alt=""
-            src={src}
-          />
-        ))}
-        <span className="name">{nickname}</span>
-        <span className="colon">:</span>
-      </span>
-      <span className={twMerge("flex justify-start items-center")}>
-        {match
-          ? message.split(emojiRegex).map((part, i) => (
-              <Fragment key={i}>
-                {i % 2 == 0 ? (
-                  part
-                ) : (
-                  <span>
-                    <Image
-                      width={24}
-                      height={24}
-                      alt={`{:${part}:}`}
-                      src={emojis[part]}
-                    />
-                  </span>
-                )}
-              </Fragment>
-            ))
-          : message}
-      </span>
-    </div>
-  );
-});
 
 export default function Page({
   chatChannelId,
@@ -75,7 +19,7 @@ export default function Page({
       <div className={twMerge("flex flex-col justify-start gap-4")}>
         {chatList.map((chat) =>
           chat ? (
-            <ChatRow
+            <Chatrow
               key={chat?.uid ?? Math.ceil(Math.random() * 10 ** 10)}
               {...chat}
             />
@@ -89,7 +33,7 @@ export default function Page({
 }
 
 export const getServerSideProps = (async () => {
-  const channelId = "458f6ec20b034f49e0fc6d03921646d2";
+  const channelId = process.env.CHANNEL_ID;
 
   const { signal } = new AbortController();
 
@@ -112,5 +56,3 @@ export const getServerSideProps = (async () => {
   accessToken?: string;
   chatChannelId?: string;
 }>;
-
-ChatRow.displayName = "ChatRow";

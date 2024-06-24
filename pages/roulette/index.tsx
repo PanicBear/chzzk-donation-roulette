@@ -48,16 +48,17 @@ export default function Page({
         if (donation.message) {
           console.log(`>> ${donation.message}`);
 
-          // setQueue((prev) => {
-          //   return [
-          //     ...prev,
-          //     {
-          //       nickname: donation.profile?.nickname ?? "익명의 후원자",
-          //       chance: 1,
-          //       message: donation.message,
-          //     },
-          //   ];
-          // });
+          setQueue((prev) => {
+            return [
+              ...prev,
+              {
+                nickname: donation.profile?.nickname ?? "익명의 후원자",
+                chance: 1,
+                message: donation.message,
+                id: uuid(),
+              },
+            ];
+          });
 
           // donation.message.includes("(룰렛)") &&
           //   setQueue((prev) => {
@@ -78,14 +79,15 @@ export default function Page({
         // console.log(`${chat.profile.nickname}: ${message}`);
 
         // const chance = getDummyCount(message);
+        const chance = 1;
 
         // chance &&
-        //   setQueue((prev) => {
-        //     return [
-        //       ...prev,
-        //       { id: uuid(), nickname: chat.profile.nickname, message, chance },
-        //     ];
-        //   });
+        setQueue((prev) => {
+          return [
+            ...prev,
+            { id: uuid(), nickname: chat.profile.nickname, message, chance },
+          ];
+        });
 
         // console.log(message);
         // console.log(queue);

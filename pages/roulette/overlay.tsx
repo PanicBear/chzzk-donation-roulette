@@ -69,12 +69,12 @@ export default function Page({
         // const chance = getDummyCount(message);
 
         // chance &&
-        // setQueue((prev) => {
-        //   return [
-        //     ...prev,
-        //     { id: uuid(), nickname: chat.profile.nickname, message, chance: 1 },
-        //   ];
-        // });
+        setQueue((prev) => {
+          return [
+            ...prev,
+            { id: uuid(), nickname: chat.profile.nickname, message, chance: 1 },
+          ];
+        });
 
         // console.log(message);
         // console.log(queue);

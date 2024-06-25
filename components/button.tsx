@@ -1,26 +1,22 @@
-import { HTMLAttributes, ReactNode, memo } from "react";
-import { twMerge } from "tailwind-merge";
+import { ButtonHTMLAttributes, memo } from 'react';
+import { twMerge } from 'tailwind-merge';
 
-interface ButtonProps {
-  children: ReactNode;
-}
-
-const CButton = ({
-  children,
-  ...props
-}: ButtonProps & HTMLAttributes<HTMLButtonElement>) => {
+const CButton = (props: ButtonHTMLAttributes<HTMLButtonElement>) => {
   return (
     <button
       {...props}
-      className={twMerge(
-        "w-24 h-8",
-        "bg-blue-500 text-white",
-        "hover:bg-blue-300",
-        "rounded-md"
-      )}
-    >
-      {children}
-    </button>
+      className={
+        props.className
+          ? props.className
+          : twMerge(
+              'w-fit h-10',
+              'p-2',
+              'flex items-center',
+              'border-2 border-solid border-black rounded-md',
+              'hover:bg-blue-400 hover:text-white'
+            )
+      }
+    />
   );
 };
 

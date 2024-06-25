@@ -1,10 +1,12 @@
+import Button from "@/components/button";
+import Input from "@/components/input";
 import { ChannelSearch } from "@/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Channel, ChannelSearchResult } from "chzzk";
 import Image from "next/image";
 import Link from "next/link";
 import { memo, useCallback } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useController, useForm } from "react-hook-form";
 import useSWR from "swr";
 import { twMerge } from "tailwind-merge";
 
@@ -96,6 +98,7 @@ export default function Page() {
 
   const handleValidForm = useCallback(
     async ({ query }: ChannelSearch) => {
+      console.log(query);
       methods.setValue("query", query);
     },
     [methods]
@@ -110,27 +113,22 @@ export default function Page() {
         )}
         onSubmit={methods.handleSubmit(handleValidForm)}
       >
-        <input
-          {...methods.register("query")}
-          className={twMerge(
-            "w-80 h-10",
-            "p-2",
-            "border-2 border-solid border-black rounded-md"
+        <Controller
+          name={"query"}
+          control={methods.control}
+          render={({ field }) => (
+            <Input
+              {...field}
+              required
+              placeholder="채널명을 입력해주세요 ex) 이글콥, 서새봄"
+            />
           )}
-          required
-          placeholder="채널명을 입력해주세요 ex) 이글콥, 서새봄"
         />
-        <button
-          className={twMerge(
-            "w-fit h-10",
-            "p-2",
-            "flex items-center",
-            "border-2 border-solid border-black rounded-md",
-            "hover:bg-blue-400 hover:text-white"
-          )}
-        >
-          채널 검색
-        </button>
+
+        <Button type="submit">채널 검색</Button>
+        <Button type="reset" onClick={() => methods.reset({ query: "" })}>
+          초기화
+        </Button>
       </form>
       <SearchResult channels={data?.channels} />
     </>

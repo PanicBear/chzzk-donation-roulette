@@ -1,10 +1,14 @@
 import Button from "@/components/button";
-import Slot from "@/components/slot";
-import { ROLL_PERCENTAGE } from "@/constants";
-import rollSlot from "@/utils/roll/slot";
+import Roulette from "@/components/roulette";
+import { OPTION_DEFAULT } from "@/constants";
+import useStorage from "@/hooks/useStorage";
+import { Option } from "@/types";
+import rollRoulette from "@/utils/roll/roulette";
 import { ChzzkChat, donationTypeName } from "chzzk";
-import { GetServerSideProps, InferGetServerSidePropsType } from "next";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/router";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { SlotCounterRef } from "react-slot-counter";
+import useSWR from "swr";
 import { twMerge } from "tailwind-merge";
 import { v4 as uuid } from "uuid";
 
@@ -15,22 +19,35 @@ type Queue = {
   chance: number;
 };
 
-const getDummyCount = (str: string) => {
-  // const re = /{:eaglekKopguri:}/g;
-  const re = /\?|ㅋ/g;
-  return ((str || "").match(re) || []).length % 3;
-};
+const DURATION = 2;
 
-export default function Page({
-  chatChannelId,
-  accessToken,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) {
+export default function Page() {
+  const router = useRouter();
+  const channelId = router.query.channelId + "";
+
+  const { data } = useSWR<{ chatChannelId?: string; accessToken?: string }>(
+    router.query.channelId
+      ? `/api/chat/clientInfo?channelId=${router.query.channelId}`
+      : ""
+  );
+
+  const { getItem } = useStorage<{ option: Option[] }>();
+
+  const rouletteRef = useRef<SlotCounterRef>(null);
+
   const intervalId = useRef<NodeJS.Timeout | null>();
   const instance = useRef<ChzzkChat | null>(null);
   const [queue, setQueue] = useState<Queue[]>([]);
-  const [percent, setPercent] = useState<number>(ROLL_PERCENTAGE);
+  const [value, setValue] = useState<number>(0);
+
+  const [optionList, setOptionList] = useState<Option[]>(OPTION_DEFAULT);
 
   const handleConnect = useCallback(() => {
+    const chatChannelId = data?.chatChannelId;
+    const accessToken = data?.accessToken;
+
+    if (!chatChannelId || !accessToken) return alert("채팅 정보 로딩중입니다");
+
     if (!instance.current) {
       const client = new ChzzkChat({
         chatChannelId,
@@ -109,7 +126,7 @@ export default function Page({
           instance.current = null;
         });
     }
-  }, [accessToken, chatChannelId]);
+  }, [data?.accessToken, data?.chatChannelId]);
 
   const handleDisconnect = useCallback(() => {
     if (!instance.current) return;
@@ -122,42 +139,63 @@ export default function Page({
     });
   }, []);
 
-  useEffect(() => {
+  const handlePop = useCallback(async () => {
     if (!queue.length) return;
 
-    intervalId.current = setInterval(() => {
-      setQueue((prev) => {
-        const [top, ...rest] = prev;
+    setQueue((prev) => {
+      const [top, ...rest] = prev;
+      if (!top) return [];
 
-        const chance = top.chance - 1;
+      console.log("pop");
 
-        console.log(`${top.nickname}: ${top.message}`);
+      setValue(rollRoulette(optionList));
+      rouletteRef.current?.startAnimation();
 
-        if (chance) {
-          return [{ ...top, chance }, ...rest];
-        }
+      const chance = top.chance - 1;
+      console.log(`${top.nickname}: ${top.message}`);
+      if (chance) {
+        return [{ ...top, chance }, ...rest];
+      }
+      if (!rest.length) {
+        intervalId.current && clearInterval(intervalId.current);
+        return [];
+      }
+      return rest;
+    });
+  }, [optionList, queue.length]);
 
-        if (!rest.length) {
-          intervalId.current && clearInterval(intervalId.current);
-          return [];
-        }
+  useEffect(() => {
+    if (!channelId) return;
 
-        return [...rest];
-      });
-    }, 2000);
+    const customizedOptions = getItem(channelId + "")?.option;
+
+    customizedOptions && setOptionList(customizedOptions);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [channelId]);
+
+  useEffect(() => {
+    intervalId.current = setTimeout(function timeout() {
+      handlePop();
+      setTimeout(timeout, DURATION * 1000 + 250);
+    }, DURATION * 1000 + 250);
+
+    // intervalId.current = setInterval(() => {
+    //   handlePop();
+    // }, DURATION * 1000 + 250);
 
     return () => {
       intervalId.current && clearInterval(intervalId.current);
     };
-  }, [queue.length]);
+  }, [handlePop]);
 
   return (
     <section
       className={twMerge("flex flex-col justify-start items-start gap-4")}
     >
       <div className={twMerge("flex justify-start gap-4")}>
-        <span>{chatChannelId}</span>
-        <span>{accessToken}</span>
+        <span>채팅정보</span>
+        <span>{data?.chatChannelId}</span>
+        <span>{data?.accessToken}</span>
       </div>
 
       <div className={twMerge("flex justify-start items-center gap-4")}>
@@ -167,9 +205,7 @@ export default function Page({
       <div className={twMerge("flex flex-col justify-start items-start gap-2")}>
         <span>도네이션 목록</span>
 
-        {!!queue.length && (
-          <Slot key={queue?.[0].id} won={rollSlot(ROLL_PERCENTAGE)} />
-        )}
+        <Roulette ref={rouletteRef} value={value} duration={DURATION} />
 
         <ul
           className={twMerge(
@@ -194,28 +230,3 @@ export default function Page({
     </section>
   );
 }
-
-export const getServerSideProps = (async () => {
-  const channelId = process.env.CHANNEL_ID;
-
-  const { signal } = new AbortController();
-
-  const chatChannelId = await fetch(
-    `https://api.chzzk.naver.com/polling/v2/channels/${channelId}/live-status`,
-    { signal }
-  )
-    .then((r) => r.json())
-    .then((data) => data["content"]?.["chatChannelId"]);
-
-  const accessToken = await fetch(
-    `https://comm-api.game.naver.com/nng_main/v1/chats/access-token?channelId=${chatChannelId}&chatType=STREAMING`,
-    { signal }
-  )
-    .then((r) => r.json())
-    .then((data) => data["content"]["accessToken"]);
-
-  return { props: { accessToken, chatChannelId } };
-}) satisfies GetServerSideProps<{
-  accessToken?: string;
-  chatChannelId?: string;
-}>;

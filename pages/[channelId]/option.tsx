@@ -1,22 +1,22 @@
 import Button from "@/components/button";
 import Input from "@/components/input";
+import { OPTION_MIN_LENGTH, OPTION_DEFAULT } from "@/constants";
+import useStorage from "@/hooks/useStorage";
 import { RouletteOption } from "@/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Fragment, useCallback } from "react";
+import { useRouter } from "next/router";
+import { Fragment, useCallback, useEffect } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { twMerge } from "tailwind-merge";
 
-const OPTION_MIN_LENGTH = 2;
-
 export default function Page() {
+  const router = useRouter();
+  const channelId = router.query.channelId + "";
+
+  const { getItem, setItem } = useStorage();
+
   const methods = useForm<RouletteOption>({
     resolver: zodResolver(RouletteOption),
-    defaultValues: {
-      option: [
-        { label: "당첨", ratio: 1 },
-        { label: "꽝", ratio: 99 },
-      ],
-    },
   });
 
   const { fields, append, remove } = useFieldArray({
@@ -36,18 +36,31 @@ export default function Page() {
     [fields.length, remove]
   );
 
-  const handleValidForm = useCallback((form: RouletteOption) => {
-    console.log(form);
-  }, []);
+  const handleValidForm = useCallback(
+    (form: RouletteOption) => {
+      console.log(form);
+      setItem(channelId, form);
+    },
+    [channelId, setItem]
+  );
+
+  useEffect(() => {
+    if (!channelId) return;
+
+    const defalutValues = getItem(channelId + "") ?? { option: OPTION_DEFAULT };
+
+    methods.reset(defalutValues);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [channelId]);
 
   return (
     <>
       <section className={twMerge("p-4")}></section>
       <form
-        onSubmit={methods.handleSubmit(handleValidForm)}
+        onSubmit={methods.handleSubmit(handleValidForm, console.error)}
         className={twMerge("p-4", "flex flex-col gap-4")}
       >
-        <div className={twMerge("w-fit", "grid grid-cols-3 gap-4")}>
+        <div className={twMerge("w-full", "grid grid-cols-3 gap-4")}>
           <label>항목</label>
           <label>비율</label>
           <div />
@@ -68,7 +81,13 @@ export default function Page() {
                   name={ratio}
                   control={methods.control}
                   render={({ field }) => (
-                    <Input {...field} name={ratio} id={ratio} />
+                    <Input
+                      type="number"
+                      {...field}
+                      name={ratio}
+                      id={ratio}
+                      min={1}
+                    />
                   )}
                 />
                 <Button onClick={() => handleOptionRemove(index)}>삭제</Button>

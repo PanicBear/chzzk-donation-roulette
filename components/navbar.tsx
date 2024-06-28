@@ -6,7 +6,7 @@ import { twMerge } from "tailwind-merge";
 function CNavBar() {
   const router = useRouter();
 
-  if (router.pathname.includes("overlay")) {
+  if (router.pathname.includes("overlay") || router.pathname.includes("test")) {
     return <></>;
   }
 

@@ -5,7 +5,7 @@ const options = {
     chzzkBaseUrl: process.env.CHZZK_BASE_URL,
     gameBaseUrl: process.env.GAME_BASE_URL,
   },
-  nidAuth: process.env.CHANNEL_ID,
+  nidAuth: process.env.NID_AUTH,
   nidSession: process.env.NID_SESSION,
 };
 

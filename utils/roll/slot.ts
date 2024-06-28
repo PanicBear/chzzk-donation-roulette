@@ -1,4 +1,4 @@
-export default function roll(f: number): boolean {
+export default function rollSlot(f: number): boolean {
   const result = Math.random();
 
   console.log(result);

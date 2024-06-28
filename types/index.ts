@@ -7,3 +7,5 @@ export interface Chat {
   emojis: Record<string, string>;
   message: string;
 }
+
+export type Option = { label: string; ratio: number };

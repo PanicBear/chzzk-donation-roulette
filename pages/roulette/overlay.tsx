@@ -1,6 +1,6 @@
 import Slot from "@/components/slot";
 import { ROLL_PERCENTAGE } from "@/constants";
-import roll from "@/utils/roll";
+import rollSlot from "@/utils/roll/roulette";
 import { ChzzkChat, donationTypeName } from "chzzk";
 import { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -140,7 +140,7 @@ export default function Page({
         className={twMerge("flex flex-col justify-start items-start gap-2")}
       >
         {!!queue.length && (
-          <Slot key={queue?.[0].id} won={roll(ROLL_PERCENTAGE)} />
+          <Slot key={queue?.[0].id} won={rollSlot(ROLL_PERCENTAGE)} />
         )}
       </div>
     </section>

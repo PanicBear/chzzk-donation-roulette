@@ -33,7 +33,7 @@ export default function Page() {
     <>
       <Greeting channel={data} />
       <section className={twMerge("p-4", "flex flex-col justify-start gap-4")}>
-        <Link href={`/${channelId}/option`} passHref>
+        <Link href={`/test/${channelId}/option`} passHref>
           <button
             className={twMerge(
               "w-fit h-10",
@@ -46,7 +46,7 @@ export default function Page() {
             룰렛 옵션
           </button>
         </Link>
-        <Link href={`/${channelId}/roulette`} passHref>
+        <Link href={`/test/${channelId}/log`} passHref>
           <button
             className={twMerge(
               "w-fit h-10",

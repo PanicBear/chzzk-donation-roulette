@@ -65,7 +65,14 @@ const DonationList = ({ list = [], control }: List<Events["donation"]>) => {
       <div className={twMerge("flex justify-start items-center gap-4")}>
         <Button
           onClick={() => {
-            exportToCSV({ filename: "test", rows: filteredList, filter: {} });
+            exportToCSV({
+              filename: `도네_${format(
+                new Date(),
+                "yyyy년MM월dd일 HH시mm분ss초"
+              )}`,
+              rows: filteredList,
+              filter: {},
+            });
           }}
         >
           현재 목록 다운로드
@@ -84,13 +91,13 @@ const DonationList = ({ list = [], control }: List<Events["donation"]>) => {
           "flex flex-col-reverse justify-start items-start gap-4"
         )}
       >
-        {filteredList.map((item) => {
+        {filteredList.map((item, key) => {
           const { index, nickname, donationType, payAmount, date, message } =
             item;
 
           return (
             <li
-              key={index}
+              key={key}
               className={twMerge("flex justify-start items-start gap-4")}
             >
               <span className={twMerge("w-8", "flex-shrink-0")}>{index}</span>

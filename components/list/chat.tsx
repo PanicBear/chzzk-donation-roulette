@@ -48,8 +48,14 @@ const ChatList = ({ list = [], control }: List<Events["chat"]>) => {
       <div className={twMerge("flex justify-start items-center gap-4")}>
         <Button
           onClick={() => {
-            console.log(filteredList);
-            exportToCSV({ filename: "test", rows: filteredList, filter: {} });
+            exportToCSV({
+              filename: `채팅_${format(
+                new Date(),
+                "yyyy년MM월dd일 HH시mm분ss초"
+              )}`,
+              rows: filteredList,
+              filter: {},
+            });
           }}
         >
           현재 목록 다운로드
@@ -66,12 +72,12 @@ const ChatList = ({ list = [], control }: List<Events["chat"]>) => {
           "flex flex-col-reverse justify-start items-start gap-4"
         )}
       >
-        {filteredList.map((chat) => {
+        {filteredList.map((chat, key) => {
           const { nickname, message, date, index } = chat;
 
           return (
             <li
-              key={index}
+              key={key}
               className={twMerge("flex justify-start items-start gap-4")}
             >
               <span className={twMerge("w-10", "flex-shrink-0")}>{index}</span>

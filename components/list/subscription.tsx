@@ -1,12 +1,12 @@
 import { List } from "@/types";
+import exportToCSV from "@/utils/csvDownload";
+import filterMsg from "@/utils/filterMsg";
 import { Events } from "chzzk";
 import { format, toDate } from "date-fns";
-import { memo, useEffect, useMemo } from "react";
+import { memo, useMemo } from "react";
 import { useController } from "react-hook-form";
 import { twMerge } from "tailwind-merge";
 import Button from "../button";
-import exportToCSV from "@/utils/csvDownload";
-import filterMsg from "@/utils/filterMsg";
 
 const SubscriptionList = ({
   list = [],
@@ -53,8 +53,14 @@ const SubscriptionList = ({
       <div className={twMerge("flex justify-start items-center gap-4")}>
         <Button
           onClick={() => {
-            console.log(filteredList);
-            exportToCSV({ filename: "test", rows: filteredList, filter: {} });
+            exportToCSV({
+              filename: `구독_${format(
+                new Date(),
+                "yyyy년MM월dd일 HH시mm분ss초"
+              )}`,
+              rows: filteredList,
+              filter: {},
+            });
           }}
         >
           현재 목록 다운로드
@@ -73,12 +79,12 @@ const SubscriptionList = ({
           "flex flex-col-reverse justify-start items-start gap-4"
         )}
       >
-        {filteredList.map((sub) => {
+        {filteredList.map((sub, key) => {
           const { index, nickname, date, message, tierName, month } = sub;
 
           return (
             <li
-              key={index}
+              key={key}
               className={twMerge("flex justify-start items-start gap-4")}
             >
               <span className={twMerge("w-8", "flex-shrink-0")}>{index}</span>

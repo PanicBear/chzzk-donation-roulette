@@ -23,7 +23,6 @@ export default async function handler(
   )
     .then((r) => r.json())
     .then((data) => {
-      console.log(data.content);
       return data["content"]["accessToken"];
     })
     .catch();

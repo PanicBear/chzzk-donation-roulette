@@ -17,10 +17,6 @@ const SubscriptionList = ({
     field: { value: filter },
   } = useController({ control, name: "filter" });
 
-  useEffect(() => {
-    console.log(list);
-  });
-
   if (type !== "subscription") return <></>;
 
   return (

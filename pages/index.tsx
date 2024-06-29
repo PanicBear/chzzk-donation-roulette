@@ -88,17 +88,11 @@ export default function Page() {
   const channelName = methods.watch("query");
 
   const { data } = useSWR<ChannelSearchResult>(
-    channelName ? `/api/search/channels/${channelName}` : "",
-    {
-      onSuccess(data) {
-        console.log(data);
-      },
-    }
+    channelName ? `/api/search/channels/${channelName}` : ""
   );
 
   const handleValidForm = useCallback(
     async ({ query }: ChannelSearch) => {
-      console.log(query);
       methods.setValue("query", query);
     },
     [methods]

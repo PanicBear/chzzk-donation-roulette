@@ -30,6 +30,7 @@ const ChatList = ({ list = [], control }: List<Events["chat"]>) => {
 
           return true;
         })
+        .sort((el) => el.time)
         .map((chat, index) => {
           const nickname = chat.profile?.nickname ?? "익명";
           const date = format(toDate(chat.time), "yyyy/MM/dd HH:mm:ss");
@@ -55,7 +56,7 @@ const ChatList = ({ list = [], control }: List<Events["chat"]>) => {
         </Button>
       </div>
       <div className={twMerge("flex justify-start items-center gap-4")}>
-        <span className={twMerge("w-8")}>순서</span>
+        <span className={twMerge("w-10")}>순서</span>
         <span className={twMerge("w-36")}>닉네임</span>
         <span className={twMerge("w-44")}>날짜</span>
         <span>메시지</span>
@@ -73,7 +74,7 @@ const ChatList = ({ list = [], control }: List<Events["chat"]>) => {
               key={index}
               className={twMerge("flex justify-start items-start gap-4")}
             >
-              <span className={twMerge("w-8", "flex-shrink-0")}>{index}</span>
+              <span className={twMerge("w-10", "flex-shrink-0")}>{index}</span>
               <span className={twMerge("w-36", "flex-shrink-0")}>
                 {nickname}
               </span>

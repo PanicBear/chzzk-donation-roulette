@@ -33,6 +33,7 @@ const SubscriptionList = ({
 
           return true;
         })
+        .sort((el) => el.time)
         .map((sub, index) => {
           const nickname = sub.profile?.nickname ?? "익명";
           const date = format(toDate(sub.time), "yyyy/MM/dd HH:mm:ss");

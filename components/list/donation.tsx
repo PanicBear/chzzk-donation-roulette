@@ -44,6 +44,7 @@ const DonationList = ({ list = [], control }: List<Events["donation"]>) => {
 
           return true;
         })
+        .sort((el) => el.time)
         .map((donation, index) => {
           const nickname = donation.profile?.nickname ?? "익명";
           const payAmount = donation.extras.payAmount.toLocaleString("en-US");

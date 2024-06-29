@@ -1,4 +1,5 @@
 import Button from "@/components/button";
+import Greeting from "@/components/greeting";
 import Input from "@/components/input";
 import Chat from "@/components/list/chat";
 import Donation from "@/components/list/donation";
@@ -7,32 +8,11 @@ import { LogOption } from "@/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Channel, ChzzkChat, Events } from "chzzk";
 import { GetServerSideProps, InferGetServerSidePropsType } from "next";
-import Link from "next/link";
-import { memo, useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import useSWR from "swr";
 import { twMerge } from "tailwind-merge";
 import { z } from "zod";
-
-const Greeting = memo(({ channel }: { channel?: Channel | null }) => {
-  if (channel === null) return <span>채널 정보를 찾을 수 없습니다.</span>;
-  if (!channel) return <></>;
-
-  return (
-    <div
-      className={twMerge(
-        "p-4 pb-0",
-        "flex justify-start items-center",
-        "space-x-4"
-      )}
-    >
-      <span>{`${channel?.channelName}님 안녕하세요!`}</span>
-      <Link href={"/"} passHref>
-        <Button>뒤로가기</Button>
-      </Link>
-    </div>
-  );
-});
 
 export default function Page({
   channelId,
@@ -43,7 +23,7 @@ export default function Page({
 
   const [isConnected, setConnected] = useState<boolean>(false);
 
-  const [recentChatCnt, setRecentChatCnt] = useState<number>(0);
+  const [recentChatCnt, setRecentChatCnt] = useState<number>();
 
   const [chatList, setChatList] = useState<Events["chat"][]>([]);
   const [donationList, setDonationList] = useState<Events["donation"][]>([]);
@@ -58,7 +38,7 @@ export default function Page({
   const methods = useForm<LogOption>({
     resolver: zodResolver(LogOption),
     defaultValues: {
-      type: "donation",
+      type: "chat",
       filter: "",
       donationType: "",
       amount: 0,
@@ -87,7 +67,7 @@ export default function Page({
 
       client.on("connect", () => {
         console.log("connected");
-        client.requestRecentChat(recentChatCnt);
+        client.requestRecentChat(recentChatCnt ?? 0);
         setConnected(true);
       });
 
@@ -177,7 +157,8 @@ export default function Page({
                   setRecentChatCnt(10000);
                 }
               }}
-              value={recentChatCnt}
+              placeholder="0"
+              value={recentChatCnt ?? ""}
               type="number"
               min={0}
               max={10000}
@@ -330,5 +311,3 @@ export const getServerSideProps = (async (context) => {
   accessToken?: string;
   chatChannelId?: string;
 }>;
-
-Greeting.displayName = "Greeting";

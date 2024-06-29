@@ -1,34 +1,21 @@
-import Slot from "@/components/slot";
-import { ROLL_PERCENTAGE } from "@/constants";
-import rollSlot from "@/utils/roll/roulette";
+import Button from "@/components/button";
 import { ChzzkChat, donationTypeName } from "chzzk";
 import { GetServerSideProps, InferGetServerSidePropsType } from "next";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { v4 as uuid } from "uuid";
-
-type Queue = {
-  id: string;
-  nickname: string;
-  message: string;
-  chance: number;
-};
-
-const getDummyCount = (str: string) => {
-  // const re = /{:eaglekKopguri:}/g;
-  const re = /\?|ㅋ/g;
-  return ((str || "").match(re) || []).length % 3;
-};
 
 export default function Page({
   chatChannelId,
   accessToken,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  const intervalId = useRef<NodeJS.Timeout | null>();
+  const [queue, setQueue] = useState<any[]>([]);
+
   const instance = useRef<ChzzkChat | null>(null);
-  const [queue, setQueue] = useState<Queue[]>([]);
 
   const handleConnect = useCallback(() => {
+    if (!chatChannelId || !accessToken) return alert("채팅 정보 로딩중입니다");
+
     if (!instance.current) {
       const client = new ChzzkChat({
         chatChannelId,
@@ -46,19 +33,29 @@ export default function Page({
         if (donation.message) {
           console.log(`>> ${donation.message}`);
 
-          if (donation.profile?.nickname) {
-            setQueue((prev) => {
-              return [
-                ...prev,
-                {
-                  id: uuid(),
-                  nickname: donation.profile?.nickname ?? "익명의 후원자",
-                  chance: 1,
-                  message: donation.message,
-                },
-              ];
-            });
-          }
+          setQueue((prev) => {
+            return [
+              ...prev,
+              {
+                nickname: donation.profile?.nickname ?? "익명의 후원자",
+                chance: 1,
+                message: donation.message,
+                id: uuid(),
+              },
+            ];
+          });
+
+          // donation.message.includes("(룰렛)") &&
+          //   setQueue((prev) => {
+          //     return [
+          //       ...prev,
+          //       {
+          //         nickname: donation.profile?.nickname ?? "익명의 후원자",
+          //         chance: 1,
+          //         message: donation.message,
+          //       },
+          //     ];
+          //   });
         }
       });
 
@@ -67,12 +64,13 @@ export default function Page({
         // console.log(`${chat.profile.nickname}: ${message}`);
 
         // const chance = getDummyCount(message);
+        const chance = 1;
 
         // chance &&
         setQueue((prev) => {
           return [
             ...prev,
-            { id: uuid(), nickname: chat.profile.nickname, message, chance: 1 },
+            { id: uuid(), nickname: chat.profile.nickname, message, chance },
           ];
         });
 
@@ -98,57 +96,57 @@ export default function Page({
     }
   }, [accessToken, chatChannelId]);
 
-  useEffect(() => {
-    if (!queue.length) return;
+  const handleDisconnect = useCallback(() => {
+    if (!instance.current) return;
 
-    intervalId.current = setInterval(() => {
-      setQueue((prev) => {
-        const [top, ...rest] = prev;
+    const client = instance.current;
 
-        const chance = top.chance - 1;
-
-        console.log(`${top.nickname}: ${top.message}`);
-
-        if (chance) {
-          return [{ ...top, chance }, ...rest];
-        }
-
-        if (!rest.length) {
-          intervalId.current && clearInterval(intervalId.current);
-          return [];
-        }
-
-        return [...rest];
-      });
-    }, 2500);
-
-    return () => {
-      intervalId.current && clearInterval(intervalId.current);
-    };
-  }, [queue.length]);
-
-  useEffect(() => {
-    instance.current || handleConnect();
-  }, [handleConnect]);
+    client.disconnect().then(() => {
+      instance.current = null;
+      console.info("disconnected");
+    });
+  }, []);
 
   return (
     <section
       className={twMerge("flex flex-col justify-start items-start gap-4")}
     >
-      <div
-        id="log"
-        className={twMerge("flex flex-col justify-start items-start gap-2")}
-      >
-        {/* {!!queue.length && (
-          <Slot key={queue?.[0].id} won={rollSlot(ROLL_PERCENTAGE)} />
-        )} */}
+      <div className={twMerge("flex justify-start gap-4")}>
+        <span>채팅정보</span>
+        <span>{chatChannelId}</span>
+        <span>{accessToken}</span>
       </div>
+
+      <div className={twMerge("flex justify-start items-center gap-4")}>
+        <Button onClick={handleConnect}>연결하기</Button>
+        <Button onClick={handleDisconnect}>연결끊기</Button>
+      </div>
+
+      <ul
+        className={twMerge(
+          "flex flex-col-reverse justify-start items-start gap-4"
+        )}
+      >
+        {queue.map((queue, index) => {
+          return (
+            <li
+              key={index}
+              className={twMerge("flex justify-start items-center gap-4")}
+            >
+              <span className={twMerge("w-5")}>{index}</span>
+              <span className={twMerge("w-36")}>{queue.nickname}</span>
+              <span>{queue.chance}</span>
+              <span>{queue.message}</span>
+            </li>
+          );
+        })}
+      </ul>
     </section>
   );
 }
 
-export const getServerSideProps = (async () => {
-  const channelId = process.env.CHANNEL_ID;
+export const getServerSideProps = (async (context) => {
+  const channelId = context.query.channelId;
 
   const { signal } = new AbortController();
 

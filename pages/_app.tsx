@@ -22,7 +22,7 @@ export default function App({ Component, pageProps }: AppProps) {
       }}
     >
       <main className={twMerge("w-screen h-screen", nanumGothic.className)}>
-        <CNavBar />
+        {/* <CNavBar /> */}
         <Component {...pageProps} />
       </main>
     </SWRConfig>

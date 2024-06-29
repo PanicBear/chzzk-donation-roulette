@@ -1,3 +1,7 @@
+import { LogOption } from "@/schema";
+import { Events } from "chzzk";
+import { Control } from "react-hook-form";
+
 export interface Chat {
   uid: string;
   time: number;
@@ -9,3 +13,8 @@ export interface Chat {
 }
 
 export type Option = { label: string; ratio: number };
+
+export interface List<T extends Events[keyof Events]> {
+  list?: T[];
+  control: Control<LogOption, any>;
+}

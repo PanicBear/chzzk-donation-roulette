@@ -12,24 +12,21 @@ export default async function handler(
     .get(
       `https://api.chzzk.naver.com/polling/v2/channels/${channelId}/live-status`
     )
-    .then((result) => result.data);
+    .then((result) => result.data)
+    .then((data) => data["content"]?.["chatChannelId"])
+    .catch();
 
-  // .then((data) => data["content"]?.["chatChannelId"])
-  // .catch();
+  const accessToken: string | undefined = await fetch(
+    `https://comm-api.game.naver.com/nng_main/v1/chats/access-token?channelId=${
+      chatChannelId ?? ""
+    }&chatType=STREAMING`
+  )
+    .then((r) => r.json())
+    .then((data) => {
+      console.log(data.content);
+      return data["content"]["accessToken"];
+    })
+    .catch();
 
-  console.log(chatChannelId);
-
-  // const accessToken: string | undefined = await fetch(
-  //   `https://comm-api.game.naver.com/nng_main/v1/chats/access-token?channelId=${
-  //     chatChannelId ?? ""
-  //   }&chatType=STREAMING`
-  // )
-  //   .then((r) => r.json())
-  //   .then((data) => {
-  //     console.log(data.content);
-  //     return data["content"]["accessToken"];
-  //   })
-  //   .catch();
-
-  // return res.json({ chatChannelId, accessToken });
+  return res.json({ chatChannelId, accessToken });
 }

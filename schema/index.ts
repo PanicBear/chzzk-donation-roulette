@@ -41,3 +41,11 @@ export const DonationOption = z.object({
     .optional(),
 });
 export type DonationOption = z.infer<typeof DonationOption>;
+
+export const LogOption = z.object({
+  type: z.string(),
+  filter: z.string(),
+  amount: z.coerce.number().int().nonnegative(),
+  donationType: z.string(),
+});
+export type LogOption = z.infer<typeof LogOption>;
